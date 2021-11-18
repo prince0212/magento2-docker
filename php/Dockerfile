@@ -3,7 +3,6 @@ FROM php:7.4-fpm-buster
 RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/privet && echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/privet && echo "Acquire::BrokenProxy    true;" >> /etc/apt/apt.conf.d/privet
 
 RUN apt-get update
-
 RUN apt-get -qq install -y \
     apt-utils \
     git \
@@ -24,9 +23,22 @@ RUN apt-get -qq install -y \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
     && docker-php-ext-install -j$(nproc) intl xsl gd zip pdo_mysql opcache soap bcmath json iconv pcntl sockets
 
+# Enable Xdebug
+RUN pecl install xdebug-3.0.3 && docker-php-ext-enable xdebug
+RUN echo "xdebug.mode=develop,debug"  >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+&& echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+
+#setup blackfire
+RUN apt-get install -y gnupg
+RUN curl -s https://packages.blackfire.io/gpg.key | apt-key add - \
+  && echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list \
+  && apt-get update \
+  && apt-get install blackfire-agent blackfire-php
+
 # Configure MailHog
-RUN go get github.com/mailhog/mhsendmail
-RUN echo 'sendmail_path="/root/go/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /usr/local/etc/php/conf.d/mail.ini
+RUN go get github.com/mailhog/mhsendmail && cp /root/go/bin/mhsendmail /usr/local/bin/
+RUN echo 'sendmail_path="/usr/local/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /usr/local/etc/php/conf.d/mail.ini
 
 # Set memory limit
 RUN echo "memory_limit=4G" >> /usr/local/etc/php/conf.d/memory_limit.ini
