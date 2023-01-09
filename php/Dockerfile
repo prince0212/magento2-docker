@@ -21,7 +21,7 @@ RUN apt-get -qq install -y \
     golang-go \
     && docker-php-ext-configure hash --with-mhash \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
-    && docker-php-ext-install -j$(nproc) intl xsl gd zip pdo_mysql opcache soap bcmath json iconv pcntl sockets
+    && docker-php-ext-install -j$(nproc) intl xsl gd zip pdo_mysql opcache soap bcmath sockets exif
 
 # Enable Xdebug
 RUN pecl install xdebug-3.2.0 && docker-php-ext-enable xdebug
