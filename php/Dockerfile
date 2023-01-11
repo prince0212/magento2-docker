@@ -36,7 +36,7 @@ RUN echo 'sendmail_path="/root/go/bin/mhsendmail --smtp-addr=mailhog:1025"' >> /
 RUN echo "memory_limit=4G" >> /usr/local/etc/php/conf.d/memory_limit.ini
 
 # Install Composer
-RUN cd /usr/src && curl https://getcomposer.org/download/2.5.1/composer.phar --output composer.phar | php
+RUN cd /usr/src && curl https://getcomposer.org/download/2.2.18/composer.phar --output composer.phar | php
 RUN cd /usr/src && mv composer.phar /usr/bin/composer
 RUN chmod +x /usr/bin/composer
 
